@@ -173,6 +173,11 @@ void PWM_update_channel(struct pwm_channel *ch, const struct pwm_params *params,
         return;
     }
 
+    if (mask & PWM_ENABLE_BIT) {
+        ch->enabled = params->enable;
+        param_write(ch, ch->enabled, "/enable");
+    }
+
     if ((mask & PWM_DUTYCYCLE_BIT) == PWM_DUTYCYCLE_BIT) {
         ch->dutycycle = params->dutycycle;
 
@@ -182,11 +187,6 @@ void PWM_update_channel(struct pwm_channel *ch, const struct pwm_params *params,
     if (mask & PWM_PERIOD_BIT) {
         ch->period = params->period;
         param_write(ch, ch->period, "/period");
-    }
-
-    if (mask & PWM_ENABLE_BIT) {
-        ch->enabled = params->enable;
-        param_write(ch, ch->enabled, "/enable");
     }
 }
 
