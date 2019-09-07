@@ -107,6 +107,8 @@ struct pwm_channel* PWM_export_channel(struct pwm_chip *pwmc, int channel_index)
     assert(pwmc->num_channels > channel_index);
 
     strcat(strncpy(pwmc->buf, pwmc->dev, strlen(pwmc->dev)), "/export");
+
+    puts(pwmc->buf);
     
     // Write channel index to export
     const int fd = open(pwmc->buf, O_WRONLY);
