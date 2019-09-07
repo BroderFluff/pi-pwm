@@ -176,7 +176,7 @@ void PWM_update_channel(struct pwm_channel *ch, const struct pwm_params *params,
     if ((mask & PWM_DUTYCYCLE_BIT) == PWM_DUTYCYCLE_BIT) {
         ch->dutycycle = params->dutycycle;
 
-        param_write(ch, ch->dutycycle, "/dutycycle");
+        param_write(ch, ch->dutycycle, "/duty_cycle");
     }
 
     if (mask & PWM_PERIOD_BIT) {

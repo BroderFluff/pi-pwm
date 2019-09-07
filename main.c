@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     struct pwm_params params;
     params.dutycycle = 1000000;
-    params.period = 1000000;
+    params.period    = 1000000;
     params.enable = 1;
 
     PWM_update_channel(ch0, &params, PWM_DUTYCYCLE_BIT | PWM_PERIOD_BIT | PWM_ENABLE_BIT);
