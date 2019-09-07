@@ -178,15 +178,15 @@ void PWM_update_channel(struct pwm_channel *ch, const struct pwm_params *params,
         param_write(ch, ch->enabled, "/enable");
     }
 
+    if (mask & PWM_PERIOD_BIT) {
+        ch->period = params->period;
+        param_write(ch, ch->period, "/period");
+    }
+
     if ((mask & PWM_DUTYCYCLE_BIT) == PWM_DUTYCYCLE_BIT) {
         ch->dutycycle = params->dutycycle;
 
         param_write(ch, ch->dutycycle, "/duty_cycle");
-    }
-
-    if (mask & PWM_PERIOD_BIT) {
-        ch->period = params->period;
-        param_write(ch, ch->period, "/period");
     }
 }
 
