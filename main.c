@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     struct pwm_channel *ch0 = PWM_export_channel(pwmc, 0);
 
     struct pwm_params params;
-    params.dutycycle = 1000000;
+    params.dutycycle = 500000;
     params.period    = 1000000;
     params.enable = 1;
 
