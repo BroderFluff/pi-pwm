@@ -1,3 +1,5 @@
+#include "pwm.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,14 +8,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-struct pwm_chip
-{
-    const char *devicePath;
-    int npwm;
-
-    char buf[256];
-};
 
 int PWM_num_channels(struct pwm_chip *pwmc)
 {
@@ -36,17 +30,3 @@ void PWM_export_channel(struct pwm_chip *pwmc, int channel)
     int len = sprintf(pwmc->buf, "%d", channel);
     write(fd, pwmc->buf, len);
 }
-
-int main(int argc, char *argv[])
-{
-    struct pwm_chip pwmc;
-
-    int num = PWM_num_channels(&pwmc);
-
-    printf("There are %d number of pwm channels\n", num);
-
-    PWM_export_channel(&pwmc, 0);
-
-
-    return 0;
-} 
