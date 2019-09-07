@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,35 +11,41 @@ struct pwm_chip
 {
     const char *devicePath;
     int npwm;
+
+    char buf[256];
 };
 
-char buf[3];
-read(fd, buf, 3);
-puts(buf);
-
-int getNumPwmDevices(struct pwm_chip *pwm)
+int PWM_num_channels(struct pwm_chip *pwmc)
 {
-    if (pwm->npwm == -1) {
-        static char buf[3];
+    if (!pwmc->npwm) {
         int fd = open("/sys/class/pwm/pwmchip0/npwm", O_RDONLY);
 
-        memset(buf, 0, sizeof(char) * 3);
-        read(fd, buf, 3);
-        pwm->npwm = atoi(buf);        
+        memset(pwmc->buf, 0, sizeof(char) * 3);
+        read(fd, pwmc->buf, 3);
+        pwmc->npwm = atoi(pwmc->buf);
+        close(fd); 
     }
 
-    return pwm->npwm;
+    return pwmc->npwm;
+}
+
+void PWM_export_channel(struct pwm_chip *pwmc, int channel)
+{
+    int fd = open("/sys/class/pwm/pwmchip0/export", O_WRONLY);
+
+    int len = sprintf(pwmc->buf, "%d", channel);
+    write(fd, pwmc->buf, len);
 }
 
 int main(int argc, char *argv[])
 {
-    puts("Hej!");
-
     struct pwm_chip pwmc;
 
-    int num = getNumPwmDevices(&pwmc);
+    int num = PWM_num_channels(&pwmc);
 
-    printf("There are %d number of pwm channels", num);
+    printf("There are %d number of pwm channels\n", num);
+
+    PWM_export_channel(&pwmc, 0);
 
 
     return 0;
