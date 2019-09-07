@@ -3,17 +3,37 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 
-static const size_t PWM_MAX_LEN = 32;
+static const size_t PWM_PATH_LEN = 32;
 
 static int get_pwm_chip_path(int index, char *buf)
 {
     return sprintf(buf, "/sys/class/pwm/pwmchip%d", index);
+}
+
+static void init_channels(struct pwm_chip *pwmc)
+{
+    strcat(strncpy(pwmc->buf, pwmc->dev, strlen(pwmc->dev)), "/npwm");
+
+    const int fd = open(pwmc->buf, O_RDONLY);
+    assert(fd > 0);
+    
+    memset(pwmc->buf, 0, sizeof(char) * 3);
+    read(fd, pwmc->buf, 3);    
+    pwmc->num_channels = atoi(pwmc->buf);
+
+    if (pwmc->num_channels > 0) {
+        const size_t size = sizeof(struct pwm_channel) * pwmc->num_channels;
+        pwmc->channels = (struct pwm_channel *) malloc(size);
+    }
+
+    close(fd); 
 }
 
 struct pwm_chip* PWM_get_chip(int index)
@@ -23,35 +43,34 @@ struct pwm_chip* PWM_get_chip(int index)
         return NULL;
     }
 
-    pwmc->dev = (char *) malloc(sizeof (char) * PWM_MAX_LEN);
+    memset(pwmc, 0, sizeof (pwmc));
+
+    // Create pwm chips system path
+    pwmc->dev = (char *) malloc(sizeof (char) * PWM_PATH_LEN);
     get_pwm_chip_path(index, pwmc->dev);
 
+    // Check pwm chips system path exists
     if (access(pwmc->dev, F_OK) < 0) {
         fprintf(stderr, "%s does not exist!", pwmc->dev);
-
-        free(pwmc->dev);
-        free(pwmc);
-        
+        PWM_release_chip(pwmc);
         return NULL;
     }
 
+    init_channels(pwmc);
 
-
-    return 
+    return pwmc;
 }
 
-int PWM_num_channels(struct pwm_chip *pwmc)
+int PWM_release_chip(struct pwm_chip *pwmc)
 {
-    if (!pwmc->npwm) {
-        int fd = open("/sys/class/pwm/pwmchip0/npwm", O_RDONLY);
-
-        memset(pwmc->buf, 0, sizeof(char) * 3);
-        read(fd, pwmc->buf, 3);
-        pwmc->npwm = atoi(pwmc->buf);
-        close(fd); 
+    if (pwmc) {
+        if (pwmc->dev) {
+            free(pwmc->dev);
+        }
+        free(pwmc);
     }
 
-    return pwmc->npwm;
+    return 0;
 }
 
 int PWM_export_channel(struct pwm_chip *pwmc, int channel)
@@ -69,7 +88,9 @@ int PWM_export_channel(struct pwm_chip *pwmc, int channel)
     return 0;
 }
 
-void PWM_set_dutycycle(struct pwm_chip *pwmc, int channel, int dutycycle)
+void PWM_channel_set_dutycycle(struct pwm_chip *pwmc, int channel, int dutycycle)
 {
-
+    assert(pwmc);
+    const int num_channels = PWM_num_channels(pwmc);
+    pwmc->channels[channel]->dutycycle = dutycycle;
 }
