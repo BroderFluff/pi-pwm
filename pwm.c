@@ -106,7 +106,7 @@ struct pwm_channel* PWM_export_channel(struct pwm_chip *pwmc, int channel_index)
     assert(pwmc->channels);
     assert(pwmc->num_channels > channel_index);
 
-    memset(pwmc->buf, NULL, sizeof(char) * 256);
+    memset(pwmc->buf, 0, sizeof(char) * 256);
     strcat(strncpy(pwmc->buf, pwmc->dev, strlen(pwmc->dev)), "/export");
 
     puts(pwmc->buf);
