@@ -160,7 +160,7 @@ static void param_write(struct pwm_channel *ch, int value, const char *name)
 
     assert(fd > 0);
 
-    const size_t len = sprintf(pwmc->buf, "%d", ch->duty_cycle);
+    const size_t len = sprintf(pwmc->buf, "%d", value);
     puts(pwmc->buf);
     write(fd, pwmc->buf, len);
     close(fd);
