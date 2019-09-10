@@ -195,7 +195,7 @@ void PWM_channel_set_dutycycle(struct pwm_channel *ch, int dutycycle)
 {
     assert(ch);
 
-    ch->dutycycle = dutycycle;
+    ch->duty_cycle = dutycycle;
 }
 
 void PWM_channel_set_period(struct pwm_channel *ch, int period)
