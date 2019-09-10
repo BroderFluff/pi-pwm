@@ -18,7 +18,7 @@ struct pwm_channel
     int                 index;
     char                path[128];
 
-    int                 dutycycle;
+    int                 duty_cycle;
     int                 period;
     int                 enabled;
 };
@@ -156,7 +156,7 @@ static void param_write(struct pwm_channel *ch, int value, const char *name)
     strcat(strcpy(pwmc->buf, ch->path), name);
     const int fd = open(pwmc->buf, O_WRONLY);
 
-    const size_t len = sprintf(pwmc->buf, "%d", ch->dutycycle);
+    const size_t len = sprintf(pwmc->buf, "%d", ch->duty_cycle);
     write(fd, pwmc->buf, len);
     close(fd);
 }
@@ -173,20 +173,19 @@ void PWM_update_channel(struct pwm_channel *ch, const struct pwm_params *params,
         return;
     }
 
-    if (mask & PWM_ENABLE_BIT) {
-        ch->enabled = params->enable;
-        param_write(ch, ch->enabled, "/enable");
-    }
-
     if (mask & PWM_PERIOD_BIT) {
         ch->period = params->period;
         param_write(ch, ch->period, "/period");
     }
 
-    if ((mask & PWM_DUTYCYCLE_BIT) == PWM_DUTYCYCLE_BIT) {
-        ch->dutycycle = params->dutycycle;
+    if (mask & PWM_ENABLE_BIT) {
+        ch->enabled = params->enable;
+        param_write(ch, ch->enabled, "/enable");
+    }
 
-        param_write(ch, ch->dutycycle, "/duty_cycle");
+    if (mask & PWM_DUTYCYCLE_BIT) {
+        ch->duty_cycle = params->duty_cycle;
+        param_write(ch, ch->duty_cycle, "/duty_cycle");
     }
 }
 
