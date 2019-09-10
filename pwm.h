@@ -12,7 +12,7 @@
 struct pwm_channel;
 struct pwm_params
 {
-    int dutycycle;
+    int duty_cycle;
     int period;
     int polarity;
     int enable;
